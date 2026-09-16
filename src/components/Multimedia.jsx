@@ -1,63 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Play, Pause, Volume2, VolumeX, Maximize, Film, Headphones, Sparkles, Clock, Mic, CheckCircle2 } from 'lucide-react';
+import { Play, Pause, Film, Headphones, Sparkles, Clock, Mic, CheckCircle2 } from 'lucide-react';
 import { PODCAST_EPISODES, VIDEO_PROJECT_DATA } from '../data/heritageData';
 
 export default function Multimedia() {
-  const [isPlayingVideo, setIsPlayingVideo] = useState(false);
-  const [videoProgress, setVideoProgress] = useState(0);
-  const [videoVolume, setVideoVolume] = useState(0.8);
-  const [isMuted, setIsMuted] = useState(false);
   const [activePodcastId, setActivePodcastId] = useState(null);
   const [podcastElapsed, setPodcastElapsed] = useState(0);
-
-  const videoRef = useRef(null);
-
-  // Video time tracking
-  const handleTimeUpdate = () => {
-    if (videoRef.current) {
-      const current = videoRef.current.currentTime;
-      const duration = videoRef.current.duration || 1;
-      setVideoProgress((current / duration) * 100);
-    }
-  };
-
-  const togglePlayVideo = () => {
-    if (!videoRef.current) return;
-    if (isPlayingVideo) {
-      videoRef.current.pause();
-      setIsPlayingVideo(false);
-    } else {
-      videoRef.current.play().then(() => {
-        setIsPlayingVideo(true);
-      }).catch((e) => {
-        console.log('Video autoplay error:', e);
-      });
-    }
-  };
-
-  const handleVideoSeek = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const pos = (e.clientX - rect.left) / rect.width;
-    if (videoRef.current) {
-      videoRef.current.currentTime = pos * videoRef.current.duration;
-      setVideoProgress(pos * 100);
-    }
-  };
-
-  const toggleMute = () => {
-    if (!videoRef.current) return;
-    videoRef.current.muted = !isMuted;
-    setIsMuted(!isMuted);
-  };
-
-  const handleFullscreen = () => {
-    if (videoRef.current) {
-      if (videoRef.current.requestFullscreen) {
-        videoRef.current.requestFullscreen();
-      }
-    }
-  };
 
   // Podcast play simulation
   const togglePodcast = (id) => {
@@ -131,91 +79,16 @@ export default function Multimedia() {
           </div>
 
           {/* Cinematic Video Player Container */}
-          <div className="relative rounded-3xl overflow-hidden border border-[#D4AF37]/50 bg-black shadow-[0_0_50px_rgba(212,175,55,0.25)] group">
-            
-            {/* HTML5 Video Element */}
-            <video
-              ref={videoRef}
-              src={VIDEO_PROJECT_DATA.videoSrc}
-              poster={VIDEO_PROJECT_DATA.thumbnail}
-              onTimeUpdate={handleTimeUpdate}
-              onEnded={() => setIsPlayingVideo(false)}
-              className="w-full aspect-video object-cover cursor-pointer"
-              onClick={togglePlayVideo}
-            />
-
-            {/* Big Center Play Button Overlay when paused */}
-            {!isPlayingVideo && (
-              <div
-                onClick={togglePlayVideo}
-                className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm cursor-pointer transition-all duration-300 group-hover:bg-black/40"
-              >
-                <motion.div
-                  whileHover={{ scale: 1.15 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="relative w-24 h-24 rounded-full bg-gradient-to-tr from-[#AA7C11] via-[#D4AF37] to-[#F5E6B3] flex items-center justify-center shadow-[0_0_40px_rgba(212,175,55,0.8)]"
-                >
-                  <span className="absolute inset-0 rounded-full border-2 border-white/60 animate-ping opacity-30" />
-                  <Play className="w-10 h-10 text-[#090909] fill-[#090909] ml-1.5" />
-                </motion.div>
-                
-                <span className="mt-4 font-cinzel text-sm sm:text-base font-bold text-white tracking-widest uppercase drop-shadow-md">
-                  Bấm để xem phim thuyết minh
-                </span>
-                <span className="text-xs text-[#E8D8B5]/80 mt-1">
-                  Độ phân giải Full HD • Thuyết minh tiếng Việt
-                </span>
-              </div>
-            )}
-
-            {/* Custom Bottom Controls Bar */}
-            <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-4 sm:p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col gap-2">
-              
-              {/* Progress Seek Bar */}
-              <div
-                onClick={handleVideoSeek}
-                className="w-full h-1.5 bg-white/20 rounded-full cursor-pointer overflow-hidden relative group/bar hover:h-2.5 transition-all"
-              >
-                <div
-                  className="h-full bg-gradient-to-r from-[#8B0000] via-[#D4AF37] to-[#F5E6B3] rounded-full"
-                  style={{ width: `${videoProgress}%` }}
-                />
-              </div>
-
-              {/* Controls Row */}
-              <div className="flex items-center justify-between pt-1 text-xs text-white">
-                <div className="flex items-center gap-4">
-                  <button
-                    onClick={togglePlayVideo}
-                    className="p-1.5 hover:text-[#D4AF37] transition-colors"
-                  >
-                    {isPlayingVideo ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 fill-current" />}
-                  </button>
-
-                  <button
-                    onClick={toggleMute}
-                    className="p-1.5 hover:text-[#D4AF37] transition-colors"
-                  >
-                    {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-                  </button>
-
-                  <span className="text-xs text-[#E8D8B5]/80 font-mono">
-                    {VIDEO_PROJECT_DATA.title}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="hidden sm:inline-block px-2.5 py-0.5 rounded-full bg-[#111111] border border-[#D4AF37]/30 text-[10px] text-[#D4AF37]">
-                    THPT FPT Hà Nội
-                  </span>
-                  <button
-                    onClick={handleFullscreen}
-                    className="p-1.5 hover:text-[#D4AF37] transition-colors"
-                  >
-                    <Maximize className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
+          <div className="relative rounded-3xl overflow-hidden border border-[#D4AF37]/50 bg-black shadow-[0_0_50px_rgba(212,175,55,0.25)]">
+            <div className="relative w-full aspect-video">
+              <iframe
+                className="absolute inset-0 w-full h-full"
+                src="https://www.youtube.com/embed/ZZpKsv5wrY4?rel=0&modestbranding=1&color=white"
+                title="Vẻ Đẹp Văn Miếu – Song Sát Sâu Sắc – Thuyết Minh"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                frameBorder="0"
+              />
             </div>
           </div>
 
